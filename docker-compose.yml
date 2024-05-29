@@ -1,0 +1,10 @@
+services:
+  shop-webapp:
+    build: .
+    ports:
+      - "3000:3000"
+    networks:
+      - control-tower_some-net
+networks:
+  control-tower_some-net:
+    external: true
