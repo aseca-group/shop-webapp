@@ -1,4 +1,10 @@
-import { Badge, Box, Button, Typography } from "@mui/material";
+import {
+  Badge,
+  Box,
+  Button,
+  CircularProgress,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Product from "../../components/Product";
 import { ShoppingBag } from "@mui/icons-material";
@@ -7,7 +13,10 @@ import { useParams } from "react-router-dom";
 
 const Home = () => {
   const [cart, setCart] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState([{ name: "Coca", price: 1000 }]);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
   const customerId = useParams().customerId;
   const addressId = useParams().addressId;
 
@@ -34,6 +43,7 @@ const Home = () => {
   }, []);
 
   const makeOrder = async () => {
+    setIsLoading(true);
     const order = {
       productsId: [
         ...cart.map((product) => {
@@ -44,9 +54,17 @@ const Home = () => {
       addressId: addressId,
     };
     console.log(order);
-    const res = await sendOrder(order);
-    console.log(res);
-    setCart([]);
+    try {
+      const res = await sendOrder(order).then(() => {
+        setIsLoading(false);
+        setCart([]);
+        console.log(res);
+        setSuccess(true);
+      });
+    } catch (error) {
+      setIsLoading(false);
+      setError("An error occurred while making the purchase.");
+    }
   };
 
   const totalProducts = cart.reduce((acc, item) => acc + item.qty, 0);
@@ -82,7 +100,7 @@ const Home = () => {
       <Box display={"flex"} flexDirection={"column"} alignItems={"center"}>
         {cart.map((product, index) => (
           <Box display={"flex"} alignItems={"center"} key={index}>
-            <Typography fontSize={'20px'}>
+            <Typography fontSize={"20px"}>
               Nombre: {product.name} | Precio: ${product.price} | Cantidad:{" "}
               {product.qty}
             </Typography>
@@ -92,12 +110,26 @@ const Home = () => {
       <Button
         variant="contained"
         color="primary"
-        sx={{ marginTop: "7vh", borderRadius: 3 }}
+        sx={{ marginTop: "7vh", borderRadius: 3, width: "15vh" }}
         onClick={makeOrder}
         disabled={cart.length === 0}
       >
-        Buy now!
+        {isLoading ? (
+          <CircularProgress color="inherit" size={24} />
+        ) : (
+          "Buy now!"
+        )}
       </Button>
+      {error && (
+        <Typography fontSize={'20px'} color="error" marginTop={2}>
+          {error}
+        </Typography>
+      )}
+      {success && (
+        <Typography fontSize={'20px'} color="green" marginTop={2}>
+          Purchase made successfully!
+        </Typography>
+      )}
     </Box>
   );
 };
