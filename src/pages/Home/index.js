@@ -13,7 +13,7 @@ import { useParams } from "react-router-dom";
 
 const Home = () => {
   const [cart, setCart] = useState([]);
-  const [products, setProducts] = useState([{ name: "Coca", price: 1000 }]);
+  const [products, setProducts] = useState([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
